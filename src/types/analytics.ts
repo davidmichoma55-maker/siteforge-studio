@@ -21,6 +21,21 @@ export interface AnalyticsEvent {
   simulatedLatencyMs?: number;
 }
 
+export interface ClientInquiry {
+  id: string;
+  refId: string;
+  timestamp: string;
+  name: string;
+  email: string;
+  company: string;
+  projectCategory: string;
+  budget: string;
+  timeline: string;
+  message: string;
+  status: 'new' | 'replied' | 'archived';
+  replyNotes?: string;
+}
+
 export interface AnalyticsSummary {
   totalEvents: number;
   navigationCount: number;
@@ -33,4 +48,6 @@ export interface AnalyticsSummary {
   sessionStartTime: string;
   simulatedBackendEndpoint: string;
   isBackendConnected: boolean;
+  totalInquiries: number;
+  unreadInquiries: number;
 }

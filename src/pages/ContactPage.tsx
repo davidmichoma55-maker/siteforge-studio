@@ -2,13 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { SiteConfig, PageId } from '../types/site.ts';
 import { ThemeStyles } from '../utils/theme.ts';
 import { Breadcrumbs } from '../components/Breadcrumbs.tsx';
+import { ClientInquiry } from '../types/analytics.ts';
 
 interface ContactPageProps {
   siteConfig: SiteConfig;
   themeStyles: ThemeStyles;
   onNavigate: (page: PageId) => void;
   preloadedData?: any;
+  adminEmail?: string;
   onTrackSubmit?: (data: any) => void;
+  onAddInquiry?: (inquiry: Omit<ClientInquiry, 'id' | 'timestamp' | 'status'>) => void;
 }
 
 export const ContactPage: React.FC<ContactPageProps> = ({
@@ -16,7 +19,9 @@ export const ContactPage: React.FC<ContactPageProps> = ({
   themeStyles,
   onNavigate,
   preloadedData,
+  adminEmail = 'davidmichoma55@gmail.com',
   onTrackSubmit,
+  onAddInquiry,
 }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -62,6 +67,21 @@ export const ContactPage: React.FC<ContactPageProps> = ({
       const generatedId = `VF-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
       setRefId(generatedId);
       setSubmitted(true);
+
+      // Ingest client inquiry into backend database
+      if (onAddInquiry) {
+        onAddInquiry({
+          refId: generatedId,
+          name,
+          email,
+          company,
+          projectCategory,
+          budget,
+          timeline,
+          message,
+        });
+      }
+
       if (onTrackSubmit) {
         onTrackSubmit({
           refId: generatedId,
@@ -116,8 +136,13 @@ export const ContactPage: React.FC<ContactPageProps> = ({
             </h3>
             <div className="space-y-4 text-xs">
               <div>
-                <span className="text-neutral-400 block mb-1">Partnership Inquiries</span>
-                <span className="font-mono text-blue-400 font-semibold text-sm">partnerships@veloce.build</span>
+                <span className="text-neutral-400 block mb-1">Lead Technical Partner Direct Line</span>
+                <a
+                  href={`mailto:${adminEmail}`}
+                  className="font-mono text-blue-400 hover:text-blue-300 font-semibold text-sm transition block"
+                >
+                  {adminEmail}
+                </a>
               </div>
               <div className="pt-3 border-t border-neutral-800">
                 <span className="text-neutral-400 block mb-1">London Studio</span>
@@ -181,18 +206,24 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                 <h3 className="text-2xl font-bold font-display text-white mb-2">
                   Project Brief Received
                 </h3>
-                <p className="text-sm text-neutral-300 max-w-md mb-6 leading-relaxed">
-                  Thank you, <span className="font-semibold text-white">{name}</span>. A principal engineer will review your brief and contact you at <span className="font-mono text-blue-400">{email}</span> within 24 hours.
+                <p className="text-sm text-neutral-300 max-w-md mb-4 leading-relaxed">
+                  Thank you, <span className="font-semibold text-white">{name}</span>. Your requirements have been logged into our backend portal and routed to lead partner David Wrekman (<span className="font-mono text-blue-400">{adminEmail}</span>). We review every inquiry personally and return with architectural guidance within 24 hours.
                 </p>
 
-                <div className="p-4 rounded-xl border border-neutral-800 bg-neutral-900/60 text-xs text-neutral-400 text-left w-full max-w-md mb-6 space-y-1.5">
+                <div className="p-4 rounded-xl border border-neutral-800 bg-neutral-900/60 text-xs text-neutral-400 text-left w-full max-w-md mb-6 space-y-1.5 font-mono">
                   <div><strong>Focus:</strong> {projectCategory}</div>
                   <div><strong>Budget:</strong> {budget}</div>
                   <div><strong>Target Timeline:</strong> {timeline}</div>
                   {company && <div><strong>Company:</strong> {company}</div>}
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center justify-center gap-3">
+                  <a
+                    href={`mailto:${adminEmail}?subject=Direct Project Brief: ${name} (${refId})&body=Hi David,%0D%0A%0D%0AHere are my project requirements:%0D%0AName: ${name}%0D%0AWork Email: ${email}%0D%0ACompany: ${company}%0D%0ACategory: ${projectCategory}%0D%0ABudget: ${budget}%0D%0ATimeline: ${timeline}%0D%0A%0D%0AProject Brief & Opinions:%0D%0A${encodeURIComponent(message)}`}
+                    className="px-4 py-2 text-xs font-semibold rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-colors cursor-pointer inline-flex items-center gap-1.5"
+                  >
+                    <span>✉ Send Direct Email Copy</span>
+                  </a>
                   <button
                     onClick={handleReset}
                     className={`px-4 py-2 text-xs font-semibold rounded-lg border ${themeStyles.border} ${themeStyles.surfaceAlt} text-neutral-300 hover:text-white transition-colors cursor-pointer`}

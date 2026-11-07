@@ -47,8 +47,11 @@ export default function App() {
   // Custom hook tracking user navigation and builder component interactions
   const {
     events,
+    inquiries,
     summary,
     sessionId,
+    adminEmail,
+    setAdminEmail,
     simulatedEndpoint,
     autoDispatch,
     setAutoDispatch,
@@ -58,6 +61,9 @@ export default function App() {
     trackBuilderInteraction,
     trackModal,
     trackForm,
+    addInquiry,
+    updateInquiryStatus,
+    deleteInquiry,
     flushQueuedEvents,
     clearEvents,
     exportEventsJson,
@@ -214,6 +220,22 @@ export default function App() {
     });
   };
 
+  // Generate sample client inquiry for testing immediate reply flow
+  const handleSimulateTestInquiry = () => {
+    const testRef = `VF-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    addInquiry({
+      refId: testRef,
+      name: 'Sofia Al-Hassan',
+      email: 'sofia.alhassan@auroraquantum.io',
+      company: 'Aurora Quantum Labs',
+      projectCategory: 'High-Impact Web Flagship',
+      budget: '$15k – $35k (Enterprise Custom)',
+      timeline: 'Within 30 Days',
+      message:
+        'We reviewed your leadership profiles and the case studies on Veloce. We are spinning out a high-throughput quantum simulation engine and need a flagship web platform that showcases our real-time benchmarks. We want to work directly with David Wrekman and the directors on this launch.',
+    });
+  };
+
   // Viewport Container Widths
   const getViewportContainerClasses = () => {
     if (viewport === 'tablet') {
@@ -248,11 +270,17 @@ export default function App() {
             title="Inspect Simulated Backend Analytics & Ingestion Stream (External to public site)"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span className="hidden sm:inline">Backend Analytics</span>
-            <span className="sm:hidden">Analytics</span>
-            <span className="px-1.5 py-0.2 rounded font-mono text-[10px] bg-blue-900/80 text-blue-200">
-              {summary.totalEvents}
-            </span>
+            <span className="hidden sm:inline">Backend Inbox & Analytics</span>
+            <span className="sm:hidden">Inbox</span>
+            {summary.unreadInquiries > 0 ? (
+              <span className="px-1.5 py-0.2 rounded font-mono text-[10px] bg-emerald-500 text-neutral-950 font-bold">
+                {summary.unreadInquiries} New
+              </span>
+            ) : (
+              <span className="px-1.5 py-0.2 rounded font-mono text-[10px] bg-blue-900/80 text-blue-200">
+                {summary.totalEvents}
+              </span>
+            )}
           </button>
 
           <button
@@ -362,7 +390,9 @@ export default function App() {
                   themeStyles={themeStyles}
                   onNavigate={navigateTo}
                   preloadedData={pageNavigationData}
+                  adminEmail={adminEmail}
                   onTrackSubmit={(formData) => trackForm('ContactBrief', 'submit', formData)}
+                  onAddInquiry={addInquiry}
                 />
               )}
             </div>
@@ -432,7 +462,7 @@ export default function App() {
         siteConfig={siteConfig}
       />
 
-      {/* Dedicated Backend Telemetry & Ingestion Console (Isolated from public website) */}
+      {/* Dedicated Backend Telemetry & Client Inquiries Console (Isolated from public website) */}
       <BackendAnalyticsModal
         isOpen={isAnalyticsOpen}
         onClose={() => {
@@ -440,8 +470,14 @@ export default function App() {
           setIsAnalyticsOpen(false);
         }}
         events={events}
+        inquiries={inquiries}
         summary={summary}
         sessionId={sessionId}
+        adminEmail={adminEmail}
+        onUpdateAdminEmail={setAdminEmail}
+        onUpdateInquiryStatus={updateInquiryStatus}
+        onDeleteInquiry={deleteInquiry}
+        onAddTestInquiry={handleSimulateTestInquiry}
         simulatedEndpoint={simulatedEndpoint}
         autoDispatch={autoDispatch}
         onToggleAutoDispatch={setAutoDispatch}
