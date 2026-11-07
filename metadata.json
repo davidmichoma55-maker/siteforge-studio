@@ -1,0 +1,6 @@
+{
+  "name": "SiteForge - Studio & Website Builder",
+  "description": "A high-performance modern website and interactive visual builder for digital studios, SaaS products, and bespoke web platforms.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
